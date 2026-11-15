@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+
+{% block title %}Assessment History — LoanWise{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1"><i class="fas fa-history text-purple me-2" style="color: #a855f7;"></i> Assessment Prediction History</h2>
+            <p class="text-secondary mb-0">Persistent SQLite database records of all evaluated loan applicants.</p>
+        </div>
+        <a href="/assessment" class="btn btn-primary-custom"><i class="fas fa-plus me-1"></i> New Assessment</a>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="glass-card mb-4 p-3">
+        <div class="row g-2 align-items-center">
+            <div class="col-md-8">
+                <div class="input-group">
+                    <span class="input-group-text bg-dark border-secondary text-secondary"><i class="fas fa-search"></i></span>
+                    <input type="text" id="historySearchInput" class="form-control" placeholder="Search history by applicant name...">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <select id="decisionFilter" class="form-select">
+                    <option value="ALL">All Decisions</option>
+                    <option value="ELIGIBLE">Eligible Only</option>
+                    <option value="CONDITIONALLY_ELIGIBLE">Conditional Only</option>
+                    <option value="NOT_ELIGIBLE">Not Eligible Only</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- History Table -->
+    <div class="glass-card">
+        <div class="table-responsive">
+            <table class="table table-dark table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Applicant</th>
+                        <th>Loan Requested</th>
+                        <th>Credit Score</th>
+                        <th>ML Score</th>
+                        <th>Rule Score</th>
+                        <th>Final Score</th>
+                        <th>Decision</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="historyTbody">
+                    <!-- Populated dynamically via JS -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- History Detail Modal -->
+<div class="modal fade" id="historyModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content glass-card text-light">
+            <div class="modal-header border-bottom border-secondary border-opacity-25">
+                <h5 class="modal-title" id="historyModalTitle"><i class="fas fa-file-alt text-info me-2"></i> Assessment Audit Record</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="historyModalBody">
+                <!-- Content loaded dynamically -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+let allHistory = [];
+
+document.addEventListener('DOMContentLoaded', async () => {
+    loadHistory();
+    document.getElementById('historySearchInput').addEventListener('input', filterHistory);
+    document.getElementById('decisionFilter').addEventListener('change', filterHistory);
+});
+
+async function loadHistory() {
+    try {
+        const response = await fetch('/api/history');
+        const data = await response.json();
+        allHistory = data.history || [];
+        renderHistory(allHistory);
+    } catch (err) {
+        console.error('Error loading history:', err);
+    }
+}
+
+function renderHistory(records) {
+    const tbody = document.getElementById('historyTbody');
+    if (!tbody) return;
+
+    if (records.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="10" class="text-center text-muted py-5">No saved assessment records found in SQLite database.</td></tr>`;
+        return;
+    }
+
+    tbody.innerHTML = records.map(rec => {
+        let badge = 'bg-success';
+        if (rec.decision === 'CONDITIONALLY_ELIGIBLE') badge = 'bg-warning text-dark';
+        else if (rec.decision === 'NOT_ELIGIBLE') badge = 'bg-danger';
+
+        return `
+            <tr>
+                <td>#${rec.id}</td>
+                <td><strong>${rec.applicant_name}</strong></td>
+                <td>${formatCurrency(rec.loan_amount)}</td>
+                <td>${rec.credit_score}</td>
+                <td>${rec.ml_score}%</td>
+                <td>${rec.rule_score}/100</td>
+                <td><strong class="text-info">${rec.final_score}</strong>/100</td>
+                <td><span class="badge ${badge}">${rec.decision.replace('_', ' ')}</span></td>
+                <td class="small text-secondary">${new Date(rec.created_at).toLocaleDateString()}</td>
+                <td>
+                    <button class="btn btn-sm btn-outline-info me-1" onclick="viewHistoryDetail(${rec.id})"><i class="fas fa-eye"></i></button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="deleteHistoryDetail(${rec.id})"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function filterHistory() {
+    const query = document.getElementById('historySearchInput').value.toLowerCase();
+    const dec = document.getElementById('decisionFilter').value;
+
+    const filtered = allHistory.filter(r => {
+        const matchesQuery = r.applicant_name.toLowerCase().includes(query);
+        const matchesDec = dec === 'ALL' || r.decision === dec;
+        return matchesQuery && matchesDec;
+    });
+
+    renderHistory(filtered);
+}
+
+async function viewHistoryDetail(id) {
+    try {
+        const response = await fetch(`/api/history/${id}`);
+        const data = await response.json();
+
+        if (data) {
+            document.getElementById('historyModalTitle').innerHTML = `<i class="fas fa-file-alt text-info me-2"></i> Assessment Audit Record #${data.id} — ${data.applicant_name}`;
+            
+            const fullRes = data.full_result || {};
+            const rawIn = data.raw_input || {};
+
+            document.getElementById('historyModalBody').innerHTML = `
+                <div class="row g-3 mb-3">
+                    <div class="col-md-4"><span class="text-secondary small">Decision</span><div><strong class="text-light">${data.decision}</strong></div></div>
+                    <div class="col-md-4"><span class="text-secondary small">Risk Level</span><div><strong class="text-light">${data.risk_level}</strong></div></div>
+                    <div class="col-md-4"><span class="text-secondary small">Final Score</span><div><strong class="text-info">${data.final_score}/100</strong></div></div>
+                </div>
+                <h6 class="text-info mb-2">Applicant Profile Parameters</h6>
+                <pre class="bg-dark p-3 rounded text-success small font-monospace">${JSON.stringify(rawIn, null, 2)}</pre>
+                <h6 class="text-warning mb-2">Complete Full Result Output Object</h6>
+                <pre class="bg-dark p-3 rounded text-info small font-monospace" style="max-height: 250px; overflow-y: auto;">${JSON.stringify(fullRes, null, 2)}</pre>
+            `;
+
+            const modal = new bootstrap.Modal(document.getElementById('historyModal'));
+            modal.show();
+        }
+    } catch (err) {
+        console.error('Error fetching history detail:', err);
+    }
+}
+
+async function deleteHistoryDetail(id) {
+    if (!confirm(`Are you sure you want to delete assessment record #${id}?`)) return;
+
+    try {
+        const response = await fetch(`/api/history/${id}`, { method: 'DELETE' });
+        if (response.ok) {
+            loadHistory();
+        }
+    } catch (err) {
+        console.error('Delete error:', err);
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}About & Architecture — LoanWise{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="mb-5 text-center max-w-3xl mx-auto">
+        <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 rounded-pill fw-semibold mb-3">
+            System Architecture & Methodology
+        </span>
+        <h1 class="hero-title mb-3">Hybrid AI Loan Decision System</h1>
+        <p class="hero-subtitle mx-auto">
+            LoanWise bridges deterministic expert systems with statistical machine learning algorithms to produce accurate, transparent, and explainable credit decisions.
+        </p>
+    </div>
+
+    <!-- System Architecture Diagram Card -->
+    <div class="glass-card mb-5">
+        <h4 class="mb-4 text-center"><i class="fas fa-sitemap text-info me-2"></i> End-to-End System Architecture</h4>
+        <div class="p-4 bg-dark rounded border border-secondary border-opacity-25 text-center font-monospace text-light">
+            <div class="row g-2 align-items-center">
+                <div class="col-md">
+                    <div class="p-2 border border-primary rounded bg-primary-light">User Form Input</div>
+                </div>
+                <div class="col-md-auto"><i class="fas fa-arrow-right text-muted"></i></div>
+                <div class="col-md">
+                    <div class="p-2 border border-info rounded bg-dark">Feature Preprocessing & Derived Ratios</div>
+                </div>
+                <div class="col-md-auto"><i class="fas fa-arrow-right text-muted"></i></div>
+                <div class="col-md">
+                    <div class="p-2 border border-warning rounded bg-dark">4 ML Models Layer</div>
+                </div>
+                <div class="col-md-auto"><i class="fas fa-arrow-right text-muted"></i></div>
+                <div class="col-md">
+                    <div class="p-2 border border-success rounded bg-dark">15 Expert Rules Engine</div>
+                </div>
+                <div class="col-md-auto"><i class="fas fa-arrow-right text-muted"></i></div>
+                <div class="col-md">
+                    <div class="p-2 border border-danger rounded bg-danger-light">Ensemble Decision & XAI</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Core Methodology Grid -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-6">
+            <div class="glass-card h-100">
+                <h5 class="text-info mb-3"><i class="fas fa-gavel me-2"></i> What is an Expert System?</h5>
+                <p class="text-secondary">
+                    An Expert System uses human-engineered domain rules (stored in a Knowledge Base) and an Inference Engine to reason through complex financial data. Unlike pure ML models, expert rules guarantee strict compliance with hard constraints (such as legal age limits and negative disposable income overrides).
+                </p>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="glass-card h-100">
+                <h5 class="text-primary mb-3"><i class="fas fa-brain me-2"></i> Why Combine Multiple ML Models?</h5>
+                <p class="text-secondary">
+                    Single machine learning models often suffer from bias or overfitting on specific feature distributions. By training Logistic Regression, Random Forest, Decision Tree, and Gradient Boosting simultaneously, LoanWise checks for model consensus and quantifies confidence levels.
+                </p>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="glass-card h-100">
+                <h5 class="text-warning mb-3"><i class="fas fa-balance-scale me-2"></i> Ensemble Decision Weighting</h5>
+                <p class="text-secondary mb-2">
+                    The final eligibility score (0–100) combines three distinct evaluation vectors:
+                </p>
+                <ul class="text-secondary small mb-0">
+                    <li><strong>50% Machine Learning Ensemble Score:</strong> Performance-weighted probability average.</li>
+                    <li><strong>30% Expert Rule Score:</strong> Normalized score based on domain risk criteria.</li>
+                    <li><strong>20% Financial Health Score:</strong> Ratio analysis of DTI, EMI, and disposable income.</li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="glass-card h-100">
+                <h5 class="text-success mb-3"><i class="fas fa-eye me-2"></i> Explainable AI (XAI)</h5>
+                <p class="text-secondary">
+                    Traditional "black box" AI models output binary decisions without explanation. LoanWise explicitly reveals why a decision was reached, which specific rules were triggered, feature importances, and model agreement spreads.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Responsible AI & Ethics Section -->
+    <div class="glass-card border-info">
+        <h4 class="text-info mb-3"><i class="fas fa-shield-cat me-2"></i> Responsible AI & Ethical Lending Principles</h4>
+        <div class="row g-3 text-secondary">
+            <div class="col-md-6">
+                <div class="p-3 bg-dark rounded border border-secondary border-opacity-25 h-100">
+                    <strong class="text-light"><i class="fas fa-ban text-danger me-1"></i> No Protected Attribute Discrimination</strong>
+                    <p class="small mb-0 mt-1">LoanWise strictly excludes sensitive protected attributes such as race, religion, gender, ethnicity, or caste from all decision pipelines and model feature matrices.</p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="p-3 bg-dark rounded border border-secondary border-opacity-25 h-100">
+                    <strong class="text-light"><i class="fas fa-graduation-cap text-warning me-1"></i> Educational Prototype Notice</strong>
+                    <p class="small mb-0 mt-1">LoanWise is an educational prototype designed to demonstrate hybrid AI architectures. It does not issue actual banking lending decisions or credit guarantees.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

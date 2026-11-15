@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block title %}Assessment Results & Explainable AI — LoanWise{% endblock %}
+
+{% block content %}
+<div class="container my-5" id="resultContainer">
+    <!-- Top Result Banner -->
+    <div class="glass-card mb-4">
+        <div class="row align-items-center text-center text-md-start g-4">
+            <div class="col-md-3 text-center border-end-md border-secondary border-opacity-25">
+                <div class="score-circle mb-2" id="scoreCircle">
+                    <div class="score-circle-inner">
+                        <span class="score-value" id="finalScoreVal">0</span>
+                        <span class="score-max">OUT OF 100</span>
+                    </div>
+                </div>
+                <h6 class="text-secondary mb-0">Overall Final Score</h6>
+            </div>
+            <div class="col-md-6">
+                <div class="small text-uppercase text-secondary tracking-wider mb-1">Final AI Decision</div>
+                <div id="decisionBadgeContainer" class="mb-3">
+                    <span class="badge-eligible"><i class="fas fa-check-circle"></i> ELIGIBLE</span>
+                </div>
+                <div class="d-flex flex-wrap align-items-center gap-3">
+                    <div id="riskLevelBadge" class="fs-6"><i class="fas fa-shield-alt text-success"></i> Risk: <strong>LOW</strong></div>
+                    <div id="confidenceBadge"><span class="badge bg-success">Consensus Confidence: HIGH</span></div>
+                </div>
+            </div>
+            <div class="col-md-3 text-md-end text-center">
+                <a href="/assessment" class="btn btn-secondary-custom mb-2 w-100"><i class="fas fa-redo me-1"></i> New Assessment</a>
+                <button onclick="window.print()" class="btn btn-outline-light btn-sm w-100"><i class="fas fa-print me-1"></i> Print / Export Report</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Model Disagreement Alert (Shown if model range > 20%) -->
+    <div id="disagreementAlert" class="alert alert-warning border-warning d-none glass-card mb-4">
+        <div class="d-flex align-items-center">
+            <i class="fas fa-exclamation-triangle fa-2x text-warning me-3"></i>
+            <div>
+                <h5 class="alert-heading mb-1">Model Disagreement Detected</h5>
+                <p class="mb-0 small">
+                    Predictions across the four ML models vary by <strong id="disagreementRangeVal">0</strong>%.
+                    Because individual algorithms evaluate feature weighting differently, LoanWise recommends conditional review.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Score Breakdown Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="glass-card text-center p-3">
+                <div class="text-secondary small mb-1"><i class="fas fa-robot text-primary me-1"></i> ML Models Score (50%)</div>
+                <h3 class="text-primary mb-0" id="mlScoreVal">0%</h3>
+                <span class="small text-muted">Performance Weighted Avg</span>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="glass-card text-center p-3">
+                <div class="text-secondary small mb-1"><i class="fas fa-gavel text-success me-1"></i> Expert Rules Score (30%)</div>
+                <h3 class="text-success mb-0" id="ruleScoreVal">0/100</h3>
+                <span class="small text-muted">Domain Criteria Score</span>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="glass-card text-center p-3">
+                <div class="text-secondary small mb-1"><i class="fas fa-heartbeat text-info me-1"></i> Financial Health (20%)</div>
+                <h3 class="text-info mb-0" id="finScoreVal">0/100</h3>
+                <span class="small text-muted">Income & Ratio Score</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Left Column: ML Models & Financial Metrics -->
+        <div class="col-lg-6">
+            <!-- ML Models Breakdown Chart -->
+            <div class="glass-card mb-4">
+                <h5 class="mb-3"><i class="fas fa-chart-bar text-primary me-2"></i> Machine Learning Model Consensus</h5>
+                <canvas id="mlModelsChart" height="200"></canvas>
+            </div>
+
+            <!-- Financial Metrics Grid -->
+            <div class="glass-card">
+                <h5 class="mb-3"><i class="fas fa-wallet text-info me-2"></i> Financial Health Metrics</h5>
+                <div class="row g-3 text-center">
+                    <div class="col-6">
+                        <div class="p-3 bg-dark rounded border border-secondary border-opacity-25">
+                            <span class="text-secondary small">Debt-to-Income (DTI)</span>
+                            <h4 class="text-light mb-0 mt-1" id="dtiVal">0%</h4>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-3 bg-dark rounded border border-secondary border-opacity-25">
+                            <span class="text-secondary small">EMI-to-Income Ratio</span>
+                            <h4 class="text-light mb-0 mt-1" id="emiRatioVal">0%</h4>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-3 bg-dark rounded border border-secondary border-opacity-25">
+                            <span class="text-secondary small">Disposable Income</span>
+                            <h4 class="text-success mb-0 mt-1" id="dispIncVal">₹0</h4>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-3 bg-dark rounded border border-secondary border-opacity-25">
+                            <span class="text-secondary small">Savings Ratio</span>
+                            <h4 class="text-info mb-0 mt-1" id="savingsRatioVal">0%</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Expert Rules & Recommendations -->
+        <div class="col-lg-6">
+            <!-- Triggered Expert Rules -->
+            <div class="glass-card mb-4">
+                <h5 class="mb-3"><i class="fas fa-shield-halved text-success me-2"></i> Expert System Rules Triggered</h5>
+                <div id="triggeredRulesList" style="max-height: 300px; overflow-y: auto;">
+                    <!-- Populated dynamically via JS -->
+                </div>
+            </div>
+
+            <!-- Actionable Recommendations -->
+            <div class="glass-card">
+                <h5 class="mb-3"><i class="fas fa-lightbulb text-warning me-2"></i> Tailored Financial Advice</h5>
+                <ul class="list-unstyled mb-0" id="recommendationsList">
+                    <!-- Populated dynamically via JS -->
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Educational Prototype Disclaimer -->
+    <div class="alert alert-secondary glass-card mt-4 mb-0 text-center">
+        <i class="fas fa-info-circle me-2 text-info"></i>
+        <strong>Educational Prototype Disclaimer:</strong> LoanWise is an educational AI prototype. Results are generated using simplified machine-learning models and expert rules and do not represent an actual bank's lending decision, credit score, or guarantee of approval.
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    {% if post_result %}
+        window.SERVER_POST_RESULT = {{ post_result|safe }};
+    {% endif %}
+</script>
+<script src="{{ url_for('static', filename='js/result.js') }}"></script>
+{% endblock %}

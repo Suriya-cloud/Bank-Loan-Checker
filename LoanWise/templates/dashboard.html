@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics Dashboard — LoanWise{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1"><i class="fas fa-chart-line text-info me-2"></i> System Analytics Dashboard</h2>
+            <p class="text-secondary mb-0">Real-time loan assessment metrics and database history statistics.</p>
+        </div>
+        <a href="/assessment" class="btn btn-primary-custom"><i class="fas fa-plus me-1"></i> New Assessment</a>
+    </div>
+
+    <!-- Summary KPI Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-md">
+            <div class="glass-card text-center p-3">
+                <span class="text-secondary small">Total Assessments</span>
+                <h3 class="text-light mb-0 mt-1" id="totalAssessmentsVal">0</h3>
+            </div>
+        </div>
+        <div class="col-md">
+            <div class="glass-card text-center p-3">
+                <span class="text-secondary small">Eligible</span>
+                <h3 class="text-success mb-0 mt-1" id="eligibleCountVal">0</h3>
+            </div>
+        </div>
+        <div class="col-md">
+            <div class="glass-card text-center p-3">
+                <span class="text-secondary small">Conditional</span>
+                <h3 class="text-warning mb-0 mt-1" id="conditionalCountVal">0</h3>
+            </div>
+        </div>
+        <div class="col-md">
+            <div class="glass-card text-center p-3">
+                <span class="text-secondary small">Not Eligible</span>
+                <h3 class="text-danger mb-0 mt-1" id="notEligibleCountVal">0</h3>
+            </div>
+        </div>
+        <div class="col-md">
+            <div class="glass-card text-center p-3">
+                <span class="text-secondary small">Avg Score</span>
+                <h3 class="text-info mb-0 mt-1" id="avgScoreVal">0</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analytics Charts Row -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-6">
+            <div class="glass-card h-100">
+                <h5 class="mb-3"><i class="fas fa-pie-chart text-primary me-2"></i> Eligibility Distribution</h5>
+                <canvas id="eligibilityChart" height="220"></canvas>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="glass-card h-100">
+                <h5 class="mb-3"><i class="fas fa-shield-alt text-warning me-2"></i> Risk Level Breakdown</h5>
+                <canvas id="riskDistributionChart" height="220"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Assessments Table -->
+    <div class="glass-card">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0"><i class="fas fa-history text-secondary me-2"></i> Recent SQLite Database Assessments</h5>
+            <a href="/history" class="small text-info text-decoration-none">View Full History <i class="fas fa-arrow-right ms-1"></i></a>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-dark table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Applicant</th>
+                        <th>Loan Amount</th>
+                        <th>Credit Score</th>
+                        <th>Final Score</th>
+                        <th>Decision</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody id="recentAssessmentsTbody">
+                    <!-- Populated via JS -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}
+{% endblock %}

@@ -1,0 +1,139 @@
+{
+  "rules": [
+    {
+      "id": "R001",
+      "name": "Minimum Age Requirement",
+      "condition": "age < 18",
+      "severity": "critical",
+      "result": "NOT_ELIGIBLE",
+      "explanation": "Applicant is below the minimum legal age of 18.",
+      "category": "eligibility"
+    },
+    {
+      "id": "R002",
+      "name": "Low Monthly Income",
+      "condition": "income < 20000",
+      "severity": "high",
+      "result": "HIGH_RISK",
+      "explanation": "Monthly income is below the ₹20,000 baseline threshold.",
+      "category": "financial"
+    },
+    {
+      "id": "R003",
+      "name": "Low Credit Score",
+      "condition": "credit_score < 650",
+      "severity": "high",
+      "result": "HIGH_RISK",
+      "explanation": "Credit score is below acceptable lending threshold (650).",
+      "category": "credit"
+    },
+    {
+      "id": "R004",
+      "name": "Excellent Credit Profile",
+      "condition": "credit_score >= 750 and employment_status in ['Salaried', 'Self-Employed']",
+      "severity": "positive",
+      "result": "LOW_RISK",
+      "explanation": "Credit score is 750 or higher with active employment.",
+      "category": "credit"
+    },
+    {
+      "id": "R005",
+      "name": "Stable Employment",
+      "condition": "employment_status == 'Salaried'",
+      "severity": "positive",
+      "result": "POSITIVE_FACTOR",
+      "explanation": "Applicant has stable salaried employment.",
+      "category": "employment"
+    },
+    {
+      "id": "R006",
+      "name": "High EMI Ratio",
+      "condition": "emi_ratio > 0.40",
+      "severity": "high",
+      "result": "HIGH_RISK",
+      "explanation": "Existing monthly EMI obligations exceed 40% of income.",
+      "category": "financial"
+    },
+    {
+      "id": "R007",
+      "name": "High Debt-to-Income (DTI)",
+      "condition": "debt_to_income > 0.40",
+      "severity": "high",
+      "result": "HIGH_RISK",
+      "explanation": "Debt-to-income ratio exceeds 40%.",
+      "category": "financial"
+    },
+    {
+      "id": "R008",
+      "name": "Previous Default History",
+      "condition": "previous_default == 1",
+      "severity": "critical",
+      "result": "HIGH_RISK",
+      "explanation": "Applicant has a recorded history of loan default.",
+      "category": "credit"
+    },
+    {
+      "id": "R009",
+      "name": "Clean Repayment Record",
+      "condition": "previous_default == 0",
+      "severity": "positive",
+      "result": "POSITIVE_FACTOR",
+      "explanation": "No prior loan defaults recorded.",
+      "category": "credit"
+    },
+    {
+      "id": "R010",
+      "name": "High Disposable Income",
+      "condition": "disposable_income > 30000",
+      "severity": "positive",
+      "result": "POSITIVE_FACTOR",
+      "explanation": "Healthy net monthly disposable income (> ₹30,000).",
+      "category": "financial"
+    },
+    {
+      "id": "R011",
+      "name": "Negative Disposable Income",
+      "condition": "disposable_income <= 0",
+      "severity": "critical",
+      "result": "NOT_ELIGIBLE",
+      "explanation": "Expenses and existing EMIs exceed total monthly income.",
+      "category": "financial"
+    },
+    {
+      "id": "R012",
+      "name": "Excessive Loan-to-Income",
+      "condition": "loan_to_income > 5.0",
+      "severity": "medium",
+      "result": "CONDITIONAL",
+      "explanation": "Requested loan amount is more than 5x annual income.",
+      "category": "loan"
+    },
+    {
+      "id": "R013",
+      "name": "Strong Financial Profile",
+      "condition": "credit_score >= 750 and debt_to_income < 0.30 and previous_default == 0 and employment_status == 'Salaried'",
+      "severity": "positive",
+      "result": "ELIGIBLE",
+      "explanation": "Prime applicant profile meeting all optimal risk criteria.",
+      "category": "overall"
+    },
+    {
+      "id": "R014",
+      "name": "Moderate Financial Profile",
+      "condition": "credit_score >= 650 and credit_score < 750 and employment_status in ['Salaried', 'Self-Employed']",
+      "severity": "medium",
+      "result": "CONDITIONAL",
+      "explanation": "Fair credit score with active employment.",
+      "category": "overall"
+    },
+    {
+      "id": "R015",
+      "name": "Weak Financial Profile",
+      "condition": "credit_score < 600 or (debt_to_income > 0.50 and previous_default == 1)",
+      "severity": "high",
+      "result": "NOT_ELIGIBLE",
+      "explanation": "Multiple high risk indicators present.",
+      "category": "overall"
+    }
+  ]
+}

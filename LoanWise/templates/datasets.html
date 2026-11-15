@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}Dataset Analysis & Management — LoanWise{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="mb-4">
+        <h2 class="mb-1"><i class="fas fa-database text-info me-2"></i> Multi-Dataset Analysis & Schemas</h2>
+        <p class="text-secondary mb-0">LoanWise ingests and standardizes 5 real-world financial datasets into a unified feature space.</p>
+    </div>
+
+    <!-- Datasets Accordion / Cards -->
+    <div id="datasetsContainer">
+        <!-- Populated dynamically via JS -->
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        const response = await fetch('/api/datasets');
+        const data = await response.json();
+        
+        if (!data.datasets) return;
+
+        const container = document.getElementById('datasetsContainer');
+        container.innerHTML = '';
+
+        data.datasets.forEach((ds, idx) => {
+            const missingText = Object.keys(ds.missing_values || {}).length === 0 
+                ? '<span class="text-success">None (Complete Data)</span>' 
+                : Object.entries(ds.missing_values).map(([k,v]) => `${k}: ${v}`).join(', ');
+
+            const sampleHeaders = ds.sample && ds.sample.length > 0 ? Object.keys(ds.sample[0]) : [];
+            
+            const sampleRowsHtml = ds.sample ? ds.sample.map(row => `
+                <tr>
+                    ${sampleHeaders.map(h => `<td>${row[h]}</td>`).join('')}
+                </tr>
+            `).join('') : '';
+
+            container.innerHTML += `
+                <div class="glass-card mb-4">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+                        <div>
+                            <h4 class="text-light mb-1"><i class="fas fa-file-csv text-warning me-2"></i> ${ds.name}</h4>
+                            <span class="badge bg-secondary font-monospace">${ds.filename}</span>
+                        </div>
+                        <div class="d-flex gap-2 mt-2 mt-md-0">
+                            <span class="badge bg-primary fs-6">${ds.rows} Rows</span>
+                            <span class="badge bg-info fs-6">${ds.columns} Columns</span>
+                            <span class="badge bg-success fs-6">Target: ${ds.target}</span>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <div class="p-3 bg-dark rounded border border-secondary border-opacity-25 h-100">
+                                <strong class="text-info">Missing Values:</strong>
+                                <div class="small text-secondary mt-1">${missingText}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="p-3 bg-dark rounded border border-secondary border-opacity-25 h-100">
+                                <strong class="text-success">Numerical Features (${ds.numerical_features ? ds.numerical_features.length : 0}):</strong>
+                                <div class="small text-secondary mt-1">${ds.numerical_features ? ds.numerical_features.join(', ') : 'None'}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="p-3 bg-dark rounded border border-secondary border-opacity-25 h-100">
+                                <strong class="text-warning">Categorical Features (${ds.categorical_features ? ds.categorical_features.length : 0}):</strong>
+                                <div class="small text-secondary mt-1">${ds.categorical_features ? ds.categorical_features.join(', ') : 'None'}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sample Preview Table -->
+                    <h6 class="text-secondary mb-2"><i class="fas fa-table me-1"></i> First 5 Sample Records</h6>
+                    <div class="table-responsive">
+                        <table class="table table-dark table-striped table-sm text-nowrap mb-0 small">
+                            <thead>
+                                <tr>${sampleHeaders.map(h => `<th class="text-info">${h}</th>`).join('')}</tr>
+                            </thead>
+                            <tbody>
+                                ${sampleRowsHtml}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        });
+    } catch (err) {
+        console.error('Error fetching datasets:', err);
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,123 @@
+{
+  "logistic_regression": {
+    "model_name": "Logistic Regression",
+    "purpose": "Loan Approval Probability Estimation",
+    "accuracy": 0.8733,
+    "precision": 0.88,
+    "recall": 0.9006,
+    "f1": 0.8902,
+    "roc_auc": 0.9486,
+    "confusion_matrix": [
+      [
+        108,
+        21
+      ],
+      [
+        17,
+        154
+      ]
+    ]
+  },
+  "random_forest": {
+    "model_name": "Random Forest",
+    "purpose": "Credit & Default Risk Classification",
+    "accuracy": 0.85,
+    "precision": 0.8663,
+    "recall": 0.8713,
+    "f1": 0.8688,
+    "roc_auc": 0.9296,
+    "confusion_matrix": [
+      [
+        106,
+        23
+      ],
+      [
+        22,
+        149
+      ]
+    ],
+    "feature_importance": {
+      "age": 0.0196,
+      "income": 0.0287,
+      "credit_score": 0.1992,
+      "loan_amount": 0.0181,
+      "loan_term": 0.0095,
+      "existing_emi": 0.0265,
+      "debt": 0.0178,
+      "monthly_expenses": 0.0243,
+      "savings": 0.0205,
+      "dependents": 0.0067,
+      "previous_default": 0.0973,
+      "debt_to_income": 0.0331,
+      "emi_ratio": 0.0334,
+      "disposable_income": 0.034,
+      "loan_to_income": 0.0202,
+      "savings_ratio": 0.0265,
+      "financial_health_score": 0.3789,
+      "employment_status_Salaried": 0.0021,
+      "employment_status_Self-Employed": 0.0019,
+      "employment_status_Unemployed": 0.0017
+    }
+  },
+  "decision_tree": {
+    "model_name": "Decision Tree",
+    "purpose": "Explainable Rule Classification",
+    "accuracy": 0.8467,
+    "precision": 0.8492,
+    "recall": 0.8889,
+    "f1": 0.8686,
+    "roc_auc": 0.8658,
+    "confusion_matrix": [
+      [
+        102,
+        27
+      ],
+      [
+        19,
+        152
+      ]
+    ],
+    "decision_rules": "|--- financial_health_score <= -0.06\n|   |--- financial_health_score <= -0.74\n|   |   |--- disposable_income <= 0.73\n|   |   |   |--- monthly_expenses <= 2.43\n|   |   |   |   |--- truncated branch of depth 2\n|   |   |   |--- monthly_expenses >  2.43\n|   |   |   |   |--- truncated branch of depth 2\n|   |   |--- disposable_income >  0.73\n|   |   |   |--- financial_health_score <= -0.89\n|   |   |   |   |--- truncated branch of depth 2\n|   |   |   |--- financial_health_score >  -0.89\n|   |   |   |   |--- truncated branch of depth 2\n|   |--- financial_health_score >  -0.74\n|   |   |--- savings_ratio <= 0.14\n|   |   |   |--- previous_default <= 1.00\n|   |   |   |   |--- truncated branch of depth 2\n|   |   |   |--- previous_default >  1.00\n|   |   |   |   |--- class: 0\n|   |   |--- savings_ratio >  0.14\n|   |   |   |--- income <= 0.31\n|   |   |   |   |--- truncated branch of depth 2\n|   |   |   |--- income >  0.31\n|   |   |   |   |--- class: 1\n|--- financial_health_score >  -0.06\n|   |--- previous_default <= 1.00\n|   |   |--- credit_score <= -0.40\n|   |   |   |--- disposable_income <= -0.75\n|   |   |   |   |--- truncated branch of depth 2\n|   |   |   |--- disposable_income >  -0.75\n|   |   |   |   |--- truncated branch of depth 2\n|   |   |--- credit_score >  -0.40\n|   |   |   |--- disposable_income <= -0.90\n|   |   |   |   |--- truncated branch of depth 2\n|   |   |   |--- disposable_income >  -0.90\n|   |   |   |   |--- truncated branch of depth 2\n|   |--- previous_default >  1.00\n|   |   |--- financial_health_score <= 0.55\n|   |   |   |--- disposable_income <= -0.64\n|   |   |   |   |--- class: 0\n|   |   |   |--- disposable_income >  -0.64\n|   |   |   |   |--- truncated branch of depth 2\n|   |   |--- financial_health_score >  0.55\n|   |   |   |--- disposable_income <= 0.14\n|   |   |   |   |--- class: 1\n|   |   |   |--- disposable_income >  0.14\n|   |   |   |   |--- truncated branch of depth 2\n"
+  },
+  "xgboost": {
+    "model_name": "Gradient Boosting Classifier (Fallback)",
+    "purpose": "High-Performance Risk & Approval Boosting",
+    "accuracy": 0.8533,
+    "precision": 0.8713,
+    "recall": 0.8713,
+    "f1": 0.8713,
+    "roc_auc": 0.9338,
+    "confusion_matrix": [
+      [
+        107,
+        22
+      ],
+      [
+        22,
+        149
+      ]
+    ],
+    "feature_importance": {
+      "age": 0.0208,
+      "income": 0.0439,
+      "credit_score": 0.0572,
+      "loan_amount": 0.0087,
+      "loan_term": 0.0043,
+      "existing_emi": 0.0135,
+      "debt": 0.0195,
+      "monthly_expenses": 0.011,
+      "savings": 0.0184,
+      "dependents": 0.0025,
+      "previous_default": 0.0917,
+      "debt_to_income": 0.0149,
+      "emi_ratio": 0.0076,
+      "disposable_income": 0.0545,
+      "loan_to_income": 0.0138,
+      "savings_ratio": 0.0365,
+      "financial_health_score": 0.5784,
+      "employment_status_Salaried": 0.0019,
+      "employment_status_Self-Employed": 0.0007,
+      "employment_status_Unemployed": 0.0002
+    }
+  }
+}

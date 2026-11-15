@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}LoanWise — Hybrid AI Loan Eligibility & Credit Risk Expert System{% endblock %}</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-custom sticky-top">
+        <div class="container-fluid max-w-7xl px-lg-4">
+            <a class="navbar-brand brand-font" href="/">
+                <i class="fas fa-brain"></i> LoanWise <span class="badge bg-primary fs-6 font-monospace ms-2">Hybrid AI</span>
+            </a>
+            <button class="navbar-toggler navbar-dark" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item"><a class="nav-link {% if request.path == '/' %}active{% endif %}" href="/"><i class="fas fa-home me-1"></i> Home</a></li>
+                    <li class="nav-item"><a class="nav-link {% if request.path == '/assessment' %}active{% endif %}" href="/assessment"><i class="fas fa-calculator me-1"></i> Assessment</a></li>
+                    <li class="nav-item"><a class="nav-link {% if request.path == '/dashboard' %}active{% endif %}" href="/dashboard"><i class="fas fa-chart-line me-1"></i> Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link {% if request.path == '/models' %}active{% endif %}" href="/models"><i class="fas fa-cubes me-1"></i> Models</a></li>
+                    <li class="nav-item"><a class="nav-link {% if request.path == '/datasets' %}active{% endif %}" href="/datasets"><i class="fas fa-database me-1"></i> Datasets</a></li>
+                    <li class="nav-item"><a class="nav-link {% if request.path == '/rules' %}active{% endif %}" href="/rules"><i class="fas fa-gavel me-1"></i> Expert Rules</a></li>
+                    <li class="nav-item"><a class="nav-link {% if request.path == '/history' %}active{% endif %}" href="/history"><i class="fas fa-history me-1"></i> History</a></li>
+                    <li class="nav-item"><a class="nav-link {% if request.path == '/about' %}active{% endif %}" href="/about"><i class="fas fa-info-circle me-1"></i> About</a></li>
+                    <li class="nav-item ms-lg-2">
+                        <button class="btn btn-outline-info btn-sm rounded-pill" data-bs-toggle="modal" data-bs-target="#emiCalcModal">
+                            <i class="fas fa-calculator me-1"></i> EMI Calculator
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Body Container -->
+    <main class="flex-grow-1">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- EMI Calculator Modal -->
+    <div class="modal fade" id="emiCalcModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content glass-card text-light">
+                <div class="modal-header border-bottom border-secondary border-opacity-25">
+                    <h5 class="modal-title"><i class="fas fa-calculator text-info me-2"></i> Financial Loan EMI Calculator</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="calcErrorAlert" class="alert alert-danger d-none py-2 px-3 mb-3 small" role="alert"></div>
+                    <form id="globalCalcForm">
+                        <div class="mb-3">
+                            <label class="form-label">Loan Amount (₹)</label>
+                            <input type="number" id="calcAmount" class="form-control" value="500000" min="10000" step="10000" required>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Interest Rate (% p.a.)</label>
+                                <input type="number" id="calcRate" class="form-control" value="10.5" min="0.1" max="50" step="0.1" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Tenure (Months)</label>
+                                <input type="number" id="calcTerm" class="form-control" value="36" min="1" max="360" step="1" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary-custom w-100 mt-2"><i class="fas fa-calculator me-1"></i> Calculate Monthly Repayment</button>
+                    </form>
+
+                    <div id="calcResultsContainer" class="d-none mt-4 p-3 rounded bg-dark border border-info border-opacity-25">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-secondary">Monthly EMI:</span>
+                            <strong id="calcEmiResult" class="text-info fs-5">₹0</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-secondary">Total Interest Payable:</span>
+                            <strong id="calcInterestResult" class="text-warning">₹0</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3">
+                            <span class="text-secondary">Total Repayment Amount:</span>
+                            <strong id="calcPaymentResult" class="text-light">₹0</strong>
+                        </div>
+                        <div class="progress" style="height: 8px;" id="calcProgressBar">
+                            <div class="progress-bar bg-info" id="calcPrincipalBar" role="progressbar" style="width: 70%;" title="Principal"></div>
+                            <div class="progress-bar bg-warning" id="calcInterestBar" role="progressbar" style="width: 30%;" title="Interest"></div>
+                        </div>
+                        <div class="d-flex justify-content-between mt-1 small">
+                            <span class="text-info" id="calcPrincipalPct"><i class="fas fa-square me-1"></i>Principal: --%</span>
+                            <span class="text-warning" id="calcInterestPct"><i class="fas fa-square me-1"></i>Interest: --%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-center">
+        <div class="container">
+            <p class="mb-1"><strong>LoanWise</strong> — Educational Hybrid AI Loan Eligibility & Credit Risk Expert System</p>
+            <p class="small text-muted mb-0">Combines 4 ML Models (Logistic Regression, Random Forest, Decision Tree, XGBoost) + 15 Expert Rules + Financial Health Engine.</p>
+            <p class="small text-secondary mt-1">Disclaimer: LoanWise is an educational prototype and does not issue actual banking lending decisions.</p>
+        </div>
+    </footer>
+
+    <!-- JS Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

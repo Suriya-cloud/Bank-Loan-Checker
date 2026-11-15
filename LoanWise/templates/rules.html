@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+
+{% block title %}Expert System Rules & Simulator — LoanWise{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1"><i class="fas fa-gavel text-success me-2"></i> Expert System Knowledge Base</h2>
+            <p class="text-secondary mb-0">15+ deterministic financial domain expert rules and critical constraint evaluation.</p>
+        </div>
+        <button class="btn btn-outline-info" data-bs-toggle="collapse" data-bs-target="#simulatorCollapse">
+            <i class="fas fa-vial me-1"></i> Open Rule Simulator
+        </button>
+    </div>
+
+    <!-- Rule Simulator Widget (Collapsible) -->
+    <div class="collapse mb-4" id="simulatorCollapse">
+        <div class="glass-card border-info">
+            <h5 class="mb-3 text-info"><i class="fas fa-vial me-2"></i> Interactive Rule Simulator</h5>
+            <p class="small text-secondary mb-3">Adjust applicant parameters below to simulate rule triggers in real time:</p>
+            <form id="simulatorForm">
+                <div class="row g-3">
+                    <div class="col-md-2">
+                        <label class="form-label small">Age</label>
+                        <input type="number" id="simAge" class="form-control form-control-sm" value="30">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small">Monthly Income (₹)</label>
+                        <input type="number" id="simIncome" class="form-control form-control-sm" value="50000">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small">Credit Score</label>
+                        <input type="number" id="simCreditScore" class="form-control form-control-sm" value="720">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small">DTI Ratio (%)</label>
+                        <input type="number" id="simDti" class="form-control form-control-sm" value="25" step="5">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small">Employment</label>
+                        <select id="simEmp" class="form-select form-select-sm">
+                            <option value="Salaried">Salaried</option>
+                            <option value="Self-Employed">Self-Employed</option>
+                            <option value="Unemployed">Unemployed</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small">Prev Default</label>
+                        <select id="simDefault" class="form-select form-select-sm">
+                            <option value="0">No</option>
+                            <option value="1">Yes</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="button" onclick="runSimulation()" class="btn btn-info btn-sm mt-3 w-100">Simulate Rule Engine Execution</button>
+            </form>
+
+            <div id="simResultsContainer" class="d-none mt-3 p-3 bg-dark rounded border border-secondary border-opacity-25">
+                <div class="d-flex justify-content-between mb-2">
+                    <strong class="text-light">Simulation Result: <span id="simStatusVal" class="badge bg-primary">ELIGIBLE</span></strong>
+                    <span class="text-info">Rule Score: <strong id="simScoreVal">80</strong>/100</span>
+                </div>
+                <div id="simTriggeredList" class="small text-secondary"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search & Filter Bar -->
+    <div class="glass-card mb-4 p-3">
+        <div class="row g-2 align-items-center">
+            <div class="col-md-8">
+                <div class="input-group">
+                    <span class="input-group-text bg-dark border-secondary text-secondary"><i class="fas fa-search"></i></span>
+                    <input type="text" id="ruleSearchInput" class="form-control" placeholder="Search rules by ID, condition, or keyword...">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <select id="severityFilter" class="form-select">
+                    <option value="ALL">All Severities</option>
+                    <option value="critical">Critical Severities</option>
+                    <option value="high">High Severities</option>
+                    <option value="positive">Positive Factors</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rules Cards Grid -->
+    <div class="row g-4" id="rulesGrid">
+        <!-- Populated dynamically via JS -->
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+let allRules = [];
+
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        const response = await fetch('/api/rules');
+        const data = await response.json();
+        allRules = data.rules || [];
+        renderRules(allRules);
+
+        document.getElementById('ruleSearchInput').addEventListener('input', filterRules);
+        document.getElementById('severityFilter').addEventListener('change', filterRules);
+    } catch (err) {
+        console.error('Error loading rules:', err);
+    }
+});
+
+function renderRules(rules) {
+    const grid = document.getElementById('rulesGrid');
+    if (!grid) return;
+
+    if (rules.length === 0) {
+        grid.innerHTML = `<div class="col-12 text-center text-muted py-5">No matching expert rules found.</div>`;
+        return;
+    }
+
+    grid.innerHTML = rules.map(rule => {
+        let badgeClass = 'bg-info';
+        if (rule.severity === 'critical') badgeClass = 'bg-danger';
+        else if (rule.severity === 'high') badgeClass = 'bg-warning text-dark';
+        else if (rule.severity === 'positive') badgeClass = 'bg-success';
+
+        return `
+            <div class="col-md-6 col-lg-4">
+                <div class="glass-card h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="badge ${badgeClass} fs-6">${rule.id}</span>
+                        <span class="small text-uppercase text-secondary fw-bold">${rule.severity}</span>
+                    </div>
+                    <h5 class="text-light mb-2">${rule.name}</h5>
+                    <div class="p-2 bg-dark rounded font-monospace small text-info mb-2">
+                        IF ${rule.condition}
+                    </div>
+                    <div class="p-2 bg-dark rounded font-monospace small text-warning mb-2">
+                        THEN ${rule.result}
+                    </div>
+                    <p class="small text-secondary mb-0">${rule.explanation}</p>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function filterRules() {
+    const query = document.getElementById('ruleSearchInput').value.toLowerCase();
+    const severity = document.getElementById('severityFilter').value;
+
+    const filtered = allRules.filter(r => {
+        const matchesQuery = r.id.toLowerCase().includes(query) ||
+                             r.name.toLowerCase().includes(query) ||
+                             r.condition.toLowerCase().includes(query) ||
+                             r.explanation.toLowerCase().includes(query);
+        const matchesSev = severity === 'ALL' || r.severity === severity;
+        return matchesQuery && matchesSev;
+    });
+
+    renderRules(filtered);
+}
+
+async function runSimulation() {
+    const data = {
+        age: parseInt(document.getElementById('simAge').value),
+        income: parseFloat(document.getElementById('simIncome').value),
+        credit_score: parseInt(document.getElementById('simCreditScore').value),
+        debt_to_income: parseFloat(document.getElementById('simDti').value) / 100.0,
+        employment_status: document.getElementById('simEmp').value,
+        previous_default: parseInt(document.getElementById('simDefault').value),
+        monthly_expenses: parseFloat(document.getElementById('simIncome').value) * 0.4,
+        existing_emi: parseFloat(document.getElementById('simIncome').value) * (parseFloat(document.getElementById('simDti').value) / 100.0),
+        savings: parseFloat(document.getElementById('simIncome').value) * 3,
+        loan_amount: parseFloat(document.getElementById('simIncome').value) * 5
+    };
+
+    try {
+        const response = await fetch('/api/expert-analysis', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        const res = await response.json();
+
+        document.getElementById('simStatusVal').textContent = res.status;
+        document.getElementById('simScoreVal').textContent = res.rule_score;
+        
+        const listHtml = res.triggered_rules ? res.triggered_rules.map(r => `• <strong>${r.id} (${r.name}):</strong> ${r.explanation}`).join('<br>') : 'No rules triggered.';
+        document.getElementById('simTriggeredList').innerHTML = listHtml;
+        document.getElementById('simResultsContainer').classList.remove('d-none');
+    } catch (err) {
+        console.error('Simulation error:', err);
+    }
+}
+</script>
+{% endblock %}

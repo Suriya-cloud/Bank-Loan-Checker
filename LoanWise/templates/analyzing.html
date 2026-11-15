@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Analyzing Financial Profile — LoanWise{% endblock %}
+
+{% block content %}
+<div class="container my-5 text-center max-w-xl">
+    <div class="glass-card py-5 px-4">
+        <div class="spinner-border text-info mb-4" style="width: 3.5rem; height: 3.5rem;" role="status">
+            <span class="visually-hidden">Analyzing...</span>
+        </div>
+        <h3 class="mb-2">Analyzing Your Financial Profile...</h3>
+        <p class="text-secondary mb-4">Please wait while LoanWise executes machine learning models and expert rule engines.</p>
+
+        <div class="text-start max-w-md mx-auto bg-dark p-4 rounded border border-secondary border-opacity-25" id="pipelineStepsList">
+            <div class="pipeline-step mb-2 text-secondary" id="step_val"><i class="fas fa-circle-notch fa-spin me-2 text-info"></i> Validating applicant information</div>
+            <div class="pipeline-step mb-2 text-secondary" id="step_ratios"><i class="far fa-circle me-2"></i> Calculating financial ratios & DTI</div>
+            <div class="pipeline-step mb-2 text-secondary" id="step_rules"><i class="far fa-circle me-2"></i> Evaluating 15+ expert system rules</div>
+            <div class="pipeline-step mb-2 text-secondary" id="step_lr"><i class="far fa-circle me-2"></i> Executing Logistic Regression Model</div>
+            <div class="pipeline-step mb-2 text-secondary" id="step_rf"><i class="far fa-circle me-2"></i> Executing Random Forest Classifier</div>
+            <div class="pipeline-step mb-2 text-secondary" id="step_dt"><i class="far fa-circle me-2"></i> Executing Decision Tree Classifier</div>
+            <div class="pipeline-step mb-2 text-secondary" id="step_xgb"><i class="far fa-circle me-2"></i> Executing Gradient Boosting / XGBoost</div>
+            <div class="pipeline-step mb-2 text-secondary" id="step_ens"><i class="far fa-circle me-2"></i> Combining model predictions in Ensemble Engine</div>
+            <div class="pipeline-step text-secondary" id="step_xai"><i class="far fa-circle me-2"></i> Generating Explainable AI breakdown</div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+    const rawInput = sessionStorage.getItem('loanwise_assessment_input');
+    if (!rawInput) {
+        window.location.href = '/assessment';
+        return;
+    }
+
+    const inputData = JSON.parse(rawInput);
+
+    // Animation helper for pipeline checklist
+    const steps = ['step_val', 'step_ratios', 'step_rules', 'step_lr', 'step_rf', 'step_dt', 'step_xgb', 'step_ens', 'step_xai'];
+    
+    let delay = 150;
+    steps.forEach((stepId, idx) => {
+        setTimeout(() => {
+            const el = document.getElementById(stepId);
+            if (el) {
+                el.className = 'pipeline-step mb-2 text-success fw-semibold';
+                el.innerHTML = `<i class="fas fa-check-circle me-2 text-success"></i> ${el.innerText}`;
+            }
+        }, idx * delay);
+    });
+
+    // Make actual API call to backend
+    try {
+        const response = await fetch('/api/predict', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(inputData)
+        });
+
+        const result = await response.json();
+        if (result && result.decision) {
+            sessionStorage.setItem('loanwise_assessment_result', JSON.stringify(result));
+            setTimeout(() => {
+                window.location.href = '/result';
+            }, steps.length * delay + 200);
+        } else {
+            alert('Failed to get prediction from server.');
+            window.location.href = '/assessment';
+        }
+    } catch (err) {
+        console.error('API Error:', err);
+        alert('Server communication error.');
+        window.location.href = '/assessment';
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}Model Comparison & Metrics — LoanWise{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1"><i class="fas fa-cubes text-primary me-2"></i> Machine Learning Model Comparison</h2>
+            <p class="text-secondary mb-0">Evaluate performance metrics of the 4 trained classification algorithms.</p>
+        </div>
+        <div id="bestModelBadge">
+            <!-- Best Model Badge loaded dynamically -->
+        </div>
+    </div>
+
+    <!-- Model Metric Cards Row -->
+    <div class="row g-4 mb-4" id="modelCardsContainer">
+        <!-- Populated via API fetch -->
+    </div>
+
+    <!-- Comparison Table & Chart -->
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="glass-card h-100">
+                <h5 class="mb-3"><i class="fas fa-table text-info me-2"></i> Performance Metrics Matrix</h5>
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Model Algorithm</th>
+                                <th>Accuracy</th>
+                                <th>Precision</th>
+                                <th>Recall</th>
+                                <th>F1 Score</th>
+                                <th>ROC-AUC</th>
+                            </tr>
+                        </thead>
+                        <tbody id="metricsTableTbody">
+                            <!-- Populated via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="glass-card h-100">
+                <h5 class="mb-3"><i class="fas fa-chart-bar text-warning me-2"></i> F1 & Accuracy Comparison</h5>
+                <canvas id="modelComparisonChart" height="230"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        const response = await fetch('/api/models');
+        const data = await response.json();
+        
+        if (!data.models) return;
+
+        // Render Best Model Badge
+        if (data.best_model) {
+            document.getElementById('bestModelBadge').innerHTML = `
+                <span class="badge bg-success fs-6 p-2"><i class="fas fa-trophy me-1"></i> Best Model: <strong>${data.best_model}</strong> (F1: ${(data.best_f1*100).toFixed(1)}%)</span>
+            `;
+        }
+
+        // Render Cards
+        const cardsContainer = document.getElementById('modelCardsContainer');
+        const tableTbody = document.getElementById('metricsTableTbody');
+        
+        cardsContainer.innerHTML = '';
+        tableTbody.innerHTML = '';
+
+        const modelNames = [];
+        const f1Scores = [];
+        const accuracyScores = [];
+
+        Object.entries(data.models).forEach(([key, m]) => {
+            modelNames.push(m.model_name);
+            f1Scores.push((m.f1 * 100).toFixed(1));
+            accuracyScores.push((m.accuracy * 100).toFixed(1));
+
+            // Card
+            cardsContainer.innerHTML += `
+                <div class="col-md-6 col-lg-3">
+                    <div class="glass-card h-100">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="text-light mb-0">${m.model_name}</h6>
+                            <span class="badge bg-success">Trained</span>
+                        </div>
+                        <p class="small text-secondary mb-3">${m.purpose}</p>
+                        <div class="row g-2 text-center bg-dark p-2 rounded">
+                            <div class="col-6"><span class="small text-muted">Accuracy</span><div class="fw-bold text-light">${(m.accuracy*100).toFixed(1)}%</div></div>
+                            <div class="col-6"><span class="small text-muted">F1 Score</span><div class="fw-bold text-info">${(m.f1*100).toFixed(1)}%</div></div>
+                            <div class="col-6"><span class="small text-muted">Precision</span><div class="fw-bold text-light">${(m.precision*100).toFixed(1)}%</div></div>
+                            <div class="col-6"><span class="small text-muted">ROC-AUC</span><div class="fw-bold text-warning">${(m.roc_auc*100).toFixed(1)}%</div></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Table Row
+            tableTbody.innerHTML += `
+                <tr>
+                    <td><strong>${m.model_name}</strong></td>
+                    <td>${(m.accuracy*100).toFixed(1)}%</td>
+                    <td>${(m.precision*100).toFixed(1)}%</td>
+                    <td>${(m.recall*100).toFixed(1)}%</td>
+                    <td><strong class="text-info">${(m.f1*100).toFixed(1)}%</strong></td>
+                    <td><strong class="text-warning">${(m.roc_auc*100).toFixed(1)}%</strong></td>
+                </tr>
+            `;
+        });
+
+        // Render Comparison Chart
+        const ctx = document.getElementById('modelComparisonChart');
+        if (ctx) {
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: modelNames,
+                    datasets: [
+                        { label: 'F1 Score (%)', data: f1Scores, backgroundColor: 'rgba(6, 182, 212, 0.75)' },
+                        { label: 'Accuracy (%)', data: accuracyScores, backgroundColor: 'rgba(79, 70, 229, 0.75)' }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: { beginAtZero: true, max: 100, ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255, 255, 255, 0.05)' } },
+                        x: { ticks: { color: '#94a3b8' }, grid: { display: false } }
+                    },
+                    plugins: { legend: { labels: { color: '#94a3b8' } } }
+                }
+            });
+        }
+    } catch (err) {
+        console.error('Error fetching models:', err);
+    }
+});
+</script>
+{% endblock %}

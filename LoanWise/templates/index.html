@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block title %}LoanWise — Hybrid AI Loan Eligibility System{% endblock %}
+
+{% block content %}
+<div class="hero-section text-center">
+    <div class="hero-glow"></div>
+    <div class="container position-relative z-2">
+        <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 rounded-pill fw-semibold mb-3">
+            <i class="fas fa-microchip me-1"></i> Expert Rules + Machine Learning Hybrid Architecture
+        </span>
+        <h1 class="hero-title mb-3">AI-Powered Loan Assessment & Risk Expert System</h1>
+        <p class="hero-subtitle mx-auto">
+            Understand your loan eligibility, credit risk, and financial health using 4 real Machine Learning models, 15+ domain expert rules, and an ensemble decision engine.
+        </p>
+        <div class="d-flex justify-content-center gap-3 mt-4">
+            <a href="/assessment" class="btn btn-primary-custom btn-lg">
+                <i class="fas fa-play-circle me-2"></i> Start Assessment
+            </a>
+            <a href="/about" class="btn btn-secondary-custom btn-lg">
+                <i class="fas fa-sitemap me-2"></i> How It Works
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="container my-5">
+    <!-- Architecture Diagram Overview -->
+    <div class="glass-card mb-5">
+        <h3 class="text-center mb-4"><i class="fas fa-diagram-project text-info me-2"></i> Hybrid Decision Pipeline Flow</h3>
+        <div class="row g-3 text-center">
+            <div class="col-md">
+                <div class="p-3 bg-dark rounded border border-secondary border-opacity-25 h-100">
+                    <i class="fas fa-user-edit text-primary fa-2x mb-2"></i>
+                    <h6 class="text-light">1. Applicant Input</h6>
+                    <span class="small text-secondary">Financial & Credit Data</span>
+                </div>
+            </div>
+            <div class="col-md-auto d-none d-md-flex align-items-center"><i class="fas fa-chevron-right text-muted"></i></div>
+            <div class="col-md">
+                <div class="p-3 bg-dark rounded border border-secondary border-opacity-25 h-100">
+                    <i class="fas fa-cogs text-info fa-2x mb-2"></i>
+                    <h6 class="text-light">2. Preprocessing</h6>
+                    <span class="small text-secondary">DTI, Disposable Inc, Ratios</span>
+                </div>
+            </div>
+            <div class="col-md-auto d-none d-md-flex align-items-center"><i class="fas fa-chevron-right text-muted"></i></div>
+            <div class="col-md">
+                <div class="p-3 bg-dark rounded border border-secondary border-opacity-25 h-100">
+                    <i class="fas fa-cubes text-warning fa-2x mb-2"></i>
+                    <h6 class="text-light">3. 4 ML Models</h6>
+                    <span class="small text-secondary">LogReg, RF, DT, XGBoost</span>
+                </div>
+            </div>
+            <div class="col-md-auto d-none d-md-flex align-items-center"><i class="fas fa-chevron-right text-muted"></i></div>
+            <div class="col-md">
+                <div class="p-3 bg-dark rounded border border-secondary border-opacity-25 h-100">
+                    <i class="fas fa-gavel text-success fa-2x mb-2"></i>
+                    <h6 class="text-light">4. Expert System</h6>
+                    <span class="small text-secondary">15 Domain Expert Rules</span>
+                </div>
+            </div>
+            <div class="col-md-auto d-none d-md-flex align-items-center"><i class="fas fa-chevron-right text-muted"></i></div>
+            <div class="col-md">
+                <div class="p-3 bg-dark rounded border border-secondary border-opacity-25 h-100">
+                    <i class="fas fa-award text-danger fa-2x mb-2"></i>
+                    <h6 class="text-light">5. Ensemble Decision</h6>
+                    <span class="small text-secondary">Final Score & Explanation</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Core Features Grid -->
+    <h3 class="mb-4 text-center">System Capabilities & Modules</h3>
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="glass-card h-100">
+                <div class="mb-3 text-primary"><i class="fas fa-brain fa-2x"></i></div>
+                <h5>4 Machine Learning Models</h5>
+                <p class="text-secondary small">Logistic Regression, Random Forest, Decision Tree, and Gradient Boosting trained on real-world loan datasets.</p>
+                <a href="/models" class="small text-info text-decoration-none">Explore Models <i class="fas fa-arrow-right ms-1"></i></a>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="glass-card h-100">
+                <div class="mb-3 text-success"><i class="fas fa-list-check fa-2x"></i></div>
+                <h5>15+ Expert Rules Engine</h5>
+                <p class="text-secondary small">Rule-based inference engine enforcing regulatory constraints, age minimums, DTI limits, and critical overrides.</p>
+                <a href="/rules" class="small text-info text-decoration-none">View Knowledge Base <i class="fas fa-arrow-right ms-1"></i></a>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="glass-card h-100">
+                <div class="mb-3 text-warning"><i class="fas fa-eye fa-2x"></i></div>
+                <h5>Explainable AI (XAI)</h5>
+                <p class="text-secondary small">Transparent explanations showing model consensus, triggered rules, feature importances, and tailored advice.</p>
+                <a href="/about" class="small text-info text-decoration-none">Learn More <i class="fas fa-arrow-right ms-1"></i></a>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="glass-card h-100">
+                <div class="mb-3 text-info"><i class="fas fa-database fa-2x"></i></div>
+                <h5>5 Real-World Datasets</h5>
+                <p class="text-secondary small">Integrates data from Loan Approval, Credit Risk, Loan Default, Customer Financial, and Personal Loan datasets.</p>
+                <a href="/datasets" class="small text-info text-decoration-none">View Datasets <i class="fas fa-arrow-right ms-1"></i></a>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="glass-card h-100">
+                <div class="mb-3 text-danger"><i class="fas fa-chart-pie fa-2x"></i></div>
+                <h5>Analytics Dashboard</h5>
+                <p class="text-secondary small">Real-time statistics tracking eligibility breakdown, risk distributions, and model agreement metrics.</p>
+                <a href="/dashboard" class="small text-info text-decoration-none">View Dashboard <i class="fas fa-arrow-right ms-1"></i></a>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="glass-card h-100">
+                <div class="mb-3 text-purple" style="color: #a855f7;"><i class="fas fa-history fa-2x"></i></div>
+                <h5>SQLite Prediction History</h5>
+                <p class="text-secondary small">Persists every evaluation record with full details, audit trail, search, filter, and management features.</p>
+                <a href="/history" class="small text-info text-decoration-none">View History <i class="fas fa-arrow-right ms-1"></i></a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
